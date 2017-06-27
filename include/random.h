@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: random.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Tudor David <tudor.david@epfl.ch>
- *   Description: 
+ *   Description:
  *   random.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -33,7 +33,7 @@
 #define LOCAL_RAND
 
 #if defined(LOCAL_RAND)
-extern __thread unsigned long* seeds; 
+extern __thread unsigned long* seeds;
 #endif
 
 
@@ -42,18 +42,18 @@ extern __thread unsigned long* seeds;
 
 //fast but weak random number generator for the sparc machine
 static inline uint32_t
-fast_rand() 
+fast_rand()
 {
   return ((getticks()&4294967295UL)>>4);
 }
 
 
-static inline unsigned long* 
-seed_rand() 
+static inline unsigned long*
+seed_rand()
 {
   unsigned long* seeds;
   /* seeds = (unsigned long*) ssalloc_aligned(64, 64); */
-  seeds = (unsigned long*) memalign(64, 64);
+  seeds = (unsigned long*) aligned_alloc(64, 64);
   seeds[0] = getticks() % 123456789;
   seeds[1] = getticks() % 362436069;
   seeds[2] = getticks() % 521288629;
@@ -78,7 +78,7 @@ xorshf96(unsigned long* x, unsigned long* y, unsigned long* z)  //period 2^96-1
 }
 
 static inline long
-rand_range(long r) 
+rand_range(long r)
 {
   /* PF_START(0); */
 #if defined(LOCAL_RAND)
@@ -87,7 +87,7 @@ rand_range(long r)
 #else
   int m = RAND_MAX;
   long d, v = 0;
-	
+
   do {
     d = (m > r ? r : m);
     v += 1 + (long)(d * ((double)rand()/((double)(m)+1.0)));
@@ -100,7 +100,7 @@ rand_range(long r)
 
 /* Re-entrant version of rand_range(r) */
 static inline long
-rand_range_re(unsigned int *seed, long r) 
+rand_range_re(unsigned int *seed, long r)
 {
   /* PF_START(0); */
 #if defined(LOCAL_RAND)
@@ -109,9 +109,9 @@ rand_range_re(unsigned int *seed, long r)
 #else
   int m = RAND_MAX;
   long d, v = 0;
-	
+
   do {
-    d = (m > r ? r : m);		
+    d = (m > r ? r : m);
     v += 1 + (long)(d * ((double)rand_r(seed)/((double)(m)+1.0)));
     r -= m;
   } while (r > 0);
@@ -158,7 +158,7 @@ extern __thread struct zipf_arr* __zipf_arr;
   __thread int __zipf_initialized = 0;		\
   __thread unsigned long* __zipf_seeds = NULL;	\
   __thread struct zipf_arr* __zipf_arr;
-  
+
 #define likely(x)       __builtin_expect((x), 1)
 #define unlikely(x)     __builtin_expect((x), 0)
 
@@ -181,7 +181,7 @@ zipf_init(const double alpha, const int max)
 }
 
 
-static inline int 
+static inline int
 zipf(double alpha, const int max)
 {
   static double c = 0;          // Normalization constant
@@ -244,7 +244,7 @@ zipf_get_rand_array(double zipf_alpha,
   za->size = num_vals;
   za->max = max;
   za->i = 0;
-  
+
   char fname[128];
   sprintf(fname, "data/zipf_rand_%d_%zu_%d.dat", id, num_vals, max);
   //  printf("--- %s\n", fname);
@@ -272,7 +272,7 @@ zipf_get_rand_array(double zipf_alpha,
 	  int val;
 	  __attribute__((unused)) int ret = fscanf(rand_file, "%d", &val);
 	  za->vals[i] = val;
-	}      
+	}
     }
 
   if (rand_file != NULL)

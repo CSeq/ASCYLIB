@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: skiplist-lock.c
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   skiplist-lock.c is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -33,7 +33,7 @@ queue_new_node(skey_t key, sval_t val)
   queue_node_t* node = ssmem_alloc(alloc, sizeof(queue_node_t));
   node->key = key;
   node->val = val;
-	
+
 #ifdef __tile__
   MEM_BARRIER;
 #endif
@@ -54,14 +54,14 @@ queue_t*
 queue_new()
 {
   queue_t *set;
-	
+
   if ((set = (queue_t*) ssalloc_aligned(CACHE_LINE_SIZE, sizeof(queue_t))) == NULL)
     {
       perror("malloc");
       exit(1);
     }
 
-  set->array = (queue_node_t**) memalign(CACHE_LINE_SIZE, QUEUE_SIZE_INIT * sizeof(queue_node_t*));
+  set->array = (queue_node_t**) aligned_alloc(CACHE_LINE_SIZE, QUEUE_SIZE_INIT * sizeof(queue_node_t*));
   assert(set->array != NULL);
 
   unsigned i;

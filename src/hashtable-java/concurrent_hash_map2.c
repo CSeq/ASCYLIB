@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: concurrent_hash_map2.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: Similar to Java's ConcurrentHashMap. 
+ *   Description: Similar to Java's ConcurrentHashMap.
  *   Doug Lea. 1.3.4. http://gee.cs.oswego.edu/dl/classes/EDU/oswego/
  *   cs/dl/util/concurrent/intro.html, 2003.
  *   concurrent_hash_map2.c is part of ASCYLIB
@@ -30,11 +30,11 @@ __thread ssmem_allocator_t* alloc = NULL;
 
 
 /* ********************************************************************************
- * help functions 
+ * help functions
  ******************************************************************************** */
 
 static int
-floor_log_2(unsigned int n) 
+floor_log_2(unsigned int n)
 {
   int pos = 0;
   if (n >= 1<<16) { n >>= 16; pos += 16; }
@@ -58,10 +58,10 @@ hash(skey_t key, int hash_seed)
 static chm_seg_t*
 chm_seg_new(size_t capacity, float load_factor)
 {
-  chm_seg_t* seg = memalign(CACHE_LINE_SIZE, sizeof(chm_seg_t));
+  chm_seg_t* seg = aligned_alloc(CACHE_LINE_SIZE, sizeof(chm_seg_t));
   assert(seg != NULL);
 
-  seg->table = memalign(CACHE_LINE_SIZE, capacity * sizeof(chm_node_t*));
+  seg->table = aligned_alloc(CACHE_LINE_SIZE, capacity * sizeof(chm_node_t*));
   assert(seg->table != NULL);
 
   seg->num_buckets = capacity;
@@ -88,7 +88,7 @@ chm_seg_new(size_t capacity, float load_factor)
 chm_t*
 chm_new(size_t capacity, size_t num_segments)
 {
-  chm_t* chm = memalign(CACHE_LINE_SIZE, sizeof(chm_t));
+  chm_t* chm = aligned_alloc(CACHE_LINE_SIZE, sizeof(chm_t));
   assert(chm != NULL);
 
   if (capacity < num_segments)
@@ -97,7 +97,7 @@ chm_new(size_t capacity, size_t num_segments)
     }
 
   chm->num_segments = num_segments;
-  chm->segments = memalign(CACHE_LINE_SIZE,  chm->num_segments * sizeof(chm_seg_t*));
+  chm->segments = aligned_alloc(CACHE_LINE_SIZE,  chm->num_segments * sizeof(chm_seg_t*));
   assert(chm->segments != NULL);
 
   chm->hash =  chm->num_segments - 1;
@@ -127,8 +127,8 @@ chm_node_new(skey_t key, sval_t val, chm_node_t* next)
 #else
   node = (volatile chm_node_t*) ssalloc(sizeof(chm_node_t));
 #endif
-  
-  if (node == NULL) 
+
+  if (node == NULL)
     {
       perror("malloc @ new_node");
       exit(1);
@@ -195,7 +195,7 @@ chm_seg_rehash(chm_t* set, int seg_num, chm_node_t* new)
 		  ssmem_free(alloc, (void*) p);
 #endif
 		}
-	      
+
 	    }
 	}
     }
@@ -276,7 +276,7 @@ chm_put_prefetch(chm_seg_t* seg, int hash_seed,skey_t key)
       pred = curr;
       curr = curr->next;
     }
-  
+
   if (pred != NULL)
     {
       PREFETCHW(pred);
@@ -310,7 +310,7 @@ chm_put(chm_t* set, skey_t key, sval_t val)
 #endif
 
   LOCK_TRY_ONCE_CLEAR();
-  do 
+  do
     {
       seg = set->segments[seg_num];
       seg_lock = &seg->lock;
@@ -415,7 +415,7 @@ chm_rem(chm_t* set, skey_t key)
 #endif
 
   LOCK_TRY_ONCE_CLEAR();
-  do 
+  do
     {
       seg = set->segments[seg_num];
       seg_lock = &seg->lock;

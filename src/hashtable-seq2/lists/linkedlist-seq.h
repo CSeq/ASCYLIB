@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: linkedlist-seq.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   linkedlist-seq.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -45,8 +45,8 @@
 
 #define HT_ALLOC_TYPE 1		/* 0: malloc,
 				   1: ssmem
-				   2: memalign
-				   3: ssalloc 
+				   2: aligned_alloc
+				   3: ssalloc
 				*/
 
 #if HT_ALLOC_TYPE == 0
@@ -56,7 +56,7 @@
 #  define ht_alloc(s)        ssmem_alloc(alloc, s)
 #  define ht_free(m)         ssmem_free(alloc, m)
 #elif HT_ALLOC_TYPE == 2
-#  define ht_alloc(s)        memalign(s, s)
+#  define ht_alloc(s)        aligned_alloc(s, s)
 #  define ht_free(m)         free(m)
 #elif HT_ALLOC_TYPE == 3
 #  define ht_alloc(s)        ssalloc(s)
@@ -82,7 +82,7 @@ typedef ALIGNED(32) volatile struct node
   /* uint8_t padding[32]; */
 } node_t;
 
-typedef struct intset 
+typedef struct intset
 {
   node_t* head;
   /* uint8_t padding[CACHE_LINE_SIZE - sizeof(node_t*)]; */

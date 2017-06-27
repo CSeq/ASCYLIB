@@ -1,9 +1,9 @@
-/*   
+/*
  *   File: fraser.c
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
  *   Description: Lock-based skip list implementation of the Fraser algorithm
- *   "Practical Lock Freedom", K. Fraser, 
+ *   "Practical Lock Freedom", K. Fraser,
  *   PhD dissertation, September 2003
  *   fraser.c is part of ASCYLIB
  *
@@ -70,7 +70,7 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
 	    {
 	      break;
 	    }
-	  left = right; 
+	  left = right;
 	  left_next = right_next;
 	}
       /* Ensure left and right nodes are adjacent */
@@ -87,7 +87,7 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
 	{
 	  left_list[i] = left;
 	}
-      if (right_list != NULL)	
+      if (right_list != NULL)
 	{
 	  right_list[i] = right;
 	}
@@ -111,12 +111,12 @@ fraser_find(sl_intset_t *set, skey_t key)
   return result;
 }
 
-inline void
+static inline void
 mark_node_ptrs(sl_node_t *n)
 {
   int i;
   sl_node_t *n_next;
-	
+
   for (i = n->toplevel - 1; i >= 0; i--)
     {
       do
@@ -126,7 +126,7 @@ mark_node_ptrs(sl_node_t *n)
       	    {
       	      break;
       	    }
-      	} 
+      	}
       while (!ATOMIC_CAS_MB(&n->next[i], n_next, set_mark((uintptr_t)n_next)));
     }
 }
@@ -174,7 +174,7 @@ fraser_remove(sl_intset_t *set, skey_t key)
 }
 
 int
-fraser_insert(sl_intset_t *set, skey_t key, sval_t val) 
+fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
 {
   sl_node_t *new, *new_next, *pred, *succ;
   /* sl_new_node **succs, **preds; */
@@ -184,14 +184,14 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
 
   new = sl_new_simple_node(key, val, get_rand_level(), 0);
   PARSE_START_TS(1);
- retry: 	
+ retry:
   UPDATE_TRY();
 
   fraser_search(set, key, preds, succs);
   PARSE_END_TS(1, lat_parsing_put);
 
   /* Update the value field of an existing node */
-  if (succs[0]->key == key) 
+  if (succs[0]->key == key)
     {				/* Value already in list */
       if (succs[0]->deleted)
 	{		   /* Value is deleted: remove it and retry */
@@ -218,9 +218,9 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
       goto retry;
     }
 
-  for (i = 1; i < new->toplevel; i++) 
+  for (i = 1; i < new->toplevel; i++)
     {
-      while (1) 
+      while (1)
 	{
 	  pred = preds[i];
 	  succ = succs[i];
@@ -230,7 +230,7 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
 	    {
 	      goto success;
 	    }
-	  if ((new_next != succ) && 
+	  if ((new_next != succ) &&
 	      (!ATOMIC_CAS_MB(&new->next[i], unset_mark((uintptr_t)new_next), succ)))
 	    break; /* Give up if pointer is marked */
 	  /* Check for old reference to a k node */

@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: concurrent_hash_map.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: Similar to Java's ConcurrentHashMap. 
+ *   Description: Similar to Java's ConcurrentHashMap.
  *   Doug Lea. 1.3.4. http://gee.cs.oswego.edu/dl/classes/EDU/oswego/
  *   cs/dl/util/concurrent/intro.html, 2003.
  *   concurrent_hash_map.c is part of ASCYLIB
@@ -31,11 +31,11 @@ size_t maxhtlength = 0;
 chm_t*
 chm_new()
 {
-  chm_t* chm = memalign(CACHE_LINE_SIZE, sizeof(chm_t));
+  chm_t* chm = aligned_alloc(CACHE_LINE_SIZE, sizeof(chm_t));
   assert(chm != NULL);
-  chm->table = memalign(CACHE_LINE_SIZE, maxhtlength * sizeof(chm_t*));
+  chm->table = aligned_alloc(CACHE_LINE_SIZE, maxhtlength * sizeof(chm_t*));
   assert(chm->table != NULL);
-  chm->locks = memalign(CACHE_LINE_SIZE, CHM_NUM_SEGMENTS_INIT * sizeof(ptlock_t));
+  chm->locks = aligned_alloc(CACHE_LINE_SIZE, CHM_NUM_SEGMENTS_INIT * sizeof(ptlock_t));
   assert(chm->locks != NULL);
 
   chm->num_buckets = maxhtlength;
@@ -65,8 +65,8 @@ chm_node_new(skey_t key, sval_t val, chm_node_t* next)
 #else
   node = (volatile chm_node_t*) ssalloc(sizeof(chm_node_t));
 #endif
-  
-  if (node == NULL) 
+
+  if (node == NULL)
     {
       perror("malloc @ new_node");
       exit(1);

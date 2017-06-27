@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: ssalloc.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   ssalloc.c is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -44,7 +44,7 @@ static __thread size_t alloc_next[SSALLOC_NUM_ALLOCATORS] = {0};
 static __thread void* ssalloc_free_list[SSALLOC_NUM_ALLOCATORS][256] = {{0}};
 static __thread uint8_t ssalloc_free_cur[SSALLOC_NUM_ALLOCATORS] = {0};
 static __thread uint8_t ssalloc_free_num[SSALLOC_NUM_ALLOCATORS] = {0};
-#endif 
+#endif
 
 void
 ssalloc_set(void* mem)
@@ -61,7 +61,7 @@ ssalloc_init()
   int i;
   for (i = 0; i < SSALLOC_NUM_ALLOCATORS; i++)
     {
-      ssalloc_app_mem[i] = (uintptr_t) memalign(SSMEM_CACHE_LINE_SIZE, SSALLOC_SIZE);
+      ssalloc_app_mem[i] = (uintptr_t) aligned_alloc(SSMEM_CACHE_LINE_SIZE, SSALLOC_SIZE);
       assert((void*) ssalloc_app_mem[i] != NULL);
     }
 #endif
@@ -114,7 +114,7 @@ ssalloc_aligned_alloc(unsigned int allocator, size_t alignement, size_t size)
   void* ret = NULL;
 
 #if defined(SSALLOC_USE_MALLOC)
-  ret = (void*) memalign(alignement, size);
+  ret = (void*) aligned_alloc(alignement, size);
 #else
   ret = (void*) (ssalloc_app_mem[allocator] + alloc_next[allocator]);
   uintptr_t retu = (uintptr_t) ret;

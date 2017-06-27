@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: bst-aravind.c
  *   Author: Tudor David <tudor.david@epfl.ch>
- *   Description: Aravind Natarajan and Neeraj Mittal. 
+ *   Description: Aravind Natarajan and Neeraj Mittal.
  *   Fast Concurrent Lock-free Binary Search Trees. PPoPP 2014
  *   bst-aravind.c is part of ASCYLIB
  *
@@ -39,7 +39,7 @@ node_t* initialize_tree(){
     inf0 = create_node(INF0,0,1);
     inf1 = create_node(INF1,0,1);
     inf2 = create_node(INF2,0,1);
-    
+
     asm volatile("" ::: "memory");
     r->left = s;
     r->right = inf2;
@@ -51,7 +51,7 @@ node_t* initialize_tree(){
 }
 
 void bst_init_local() {
-  seek_record = (seek_record_t*) memalign(CACHE_LINE_SIZE, sizeof(seek_record_t));
+  seek_record = (seek_record_t*) aligned_alloc(CACHE_LINE_SIZE, sizeof(seek_record_t));
   assert(seek_record != NULL);
 }
 
@@ -63,7 +63,7 @@ node_t* create_node(skey_t k, sval_t value, int initializing) {
     } else {
         new_node = (volatile node_t*) ssmem_alloc(alloc, sizeof(node_t));
     }
-#else 
+#else
     new_node = (volatile node_t*) ssalloc(sizeof(node_t));
 #endif
     if (new_node == NULL) {
@@ -83,7 +83,7 @@ seek_record_t * bst_seek(skey_t key, node_t* node_r){
     volatile seek_record_t seek_record_l;
     node_t* node_s = ADDRESS(node_r->left);
     seek_record_l.ancestor = node_r;
-    seek_record_l.successor = node_s; 
+    seek_record_l.successor = node_s;
     seek_record_l.parent = node_s;
     seek_record_l.leaf = ADDRESS(node_s->left);
 
@@ -147,7 +147,7 @@ bool_t bst_insert(skey_t key, sval_t val, node_t* node_r) {
 
         node_t** child_addr;
         if (key < parent->key) {
-	  child_addr= (node_t**) &(parent->left); 
+	  child_addr= (node_t**) &(parent->left);
         } else {
             child_addr= (node_t**) &(parent->right);
         }
@@ -160,7 +160,7 @@ bool_t bst_insert(skey_t key, sval_t val, node_t* node_r) {
         }
         if ( key < leaf->key) {
             new_internal->left = new_node;
-            new_internal->right = leaf; 
+            new_internal->right = leaf;
         } else {
             new_internal->right = new_node;
             new_internal->left = leaf;
@@ -172,15 +172,15 @@ bool_t bst_insert(skey_t key, sval_t val, node_t* node_r) {
         if (result == ADDRESS(leaf)) {
             return TRUE;
         }
-        node_t* chld = *child_addr; 
+        node_t* chld = *child_addr;
         if ( (ADDRESS(chld)==leaf) && (GETFLAG(chld) || GETTAG(chld)) ) {
-            bst_cleanup(key); 
+            bst_cleanup(key);
         }
     }
 }
 
 sval_t bst_remove(skey_t key, node_t* node_r) {
-    bool_t injecting = TRUE; 
+    bool_t injecting = TRUE;
     node_t* leaf;
     sval_t val = 0;
     while (1) {
@@ -218,7 +218,7 @@ sval_t bst_remove(skey_t key, node_t* node_r) {
             }
         } else {
             if (seek_record->leaf != leaf) {
-                return val; 
+                return val;
             } else {
                 bool_t done = bst_cleanup(key);
                 if (done == TRUE) {
@@ -284,7 +284,7 @@ bool_t bst_cleanup(skey_t key) {
 }
 
 uint32_t bst_size(volatile node_t* node) {
-    if (node == NULL) return 0; 
+    if (node == NULL) return 0;
     if ((node->left == NULL) && (node->right == NULL)) {
        if (node->key < INF0 ) return 1;
     }

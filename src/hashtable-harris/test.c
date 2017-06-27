@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: test.c
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   test.c is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -31,7 +31,7 @@
  * Copyright (c) 2009-2010.
  *
  * test.c is part of HIDDEN
- * 
+ *
  * HIDDEN is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation, version 2
@@ -58,14 +58,14 @@ __thread unsigned int *rng_seed;
 pthread_key_t rng_seed_key;
 #endif /* ! TLS */
 
-/* 
+/*
  * Returns a pseudo-random value in [1;range).
  * Depending on the symbolic constant RAND_MAX>=32767 defined in stdlib.h,
- * the granularity of rand() could be lower-bounded by the 32767^th which might 
+ * the granularity of rand() could be lower-bounded by the 32767^th which might
  * be too high for given values of range and initial.
  */
 
-typedef ALIGNED(64) struct thread_data 
+typedef ALIGNED(64) struct thread_data
 {
   skey_t first;
   long range;
@@ -96,7 +96,7 @@ typedef ALIGNED(64) struct thread_data
 
 
 void
-*test(void *data) 
+*test(void *data)
 {
   PF_MSG(0, "rand_range");
   PF_MSG(1, "malloc");
@@ -105,9 +105,9 @@ void
   int val2, numtx, r, last = -1;
   skey_t key = 0;
   int unext = 0 , mnext = 0, cnext = 1;
-	
+
   thread_data_t *d = (thread_data_t *)data;
-	
+
   set_cpu(d->id);
   ssalloc_init();
   PF_CORRECTION;
@@ -116,13 +116,13 @@ void
 
   /* Wait on barrier */
   barrier_cross(d->barrier);
-	
+
   while (*running)
     {
       if (unext) { // update
-	    
+
 	if (mnext) { // move
-	      
+
 	  if (last == -1) key = rand_range_re(&d->seed, d->range);
 	  else key = last;
 	  val2 = rand_range_re(&d->seed, d->range);
@@ -131,18 +131,18 @@ void
 	    last = -1;
 	  }
 	  d->nb_move++;
-	      
+
 	} else if (last < 0) { // add
-	      
+
 	  key = rand_range_re(&d->seed, d->range);
 	  if (ht_add(d->set, key, TRANSACTIONAL)) {
 	    d->nb_added++;
 	    last = key;
 	  }
 	  d->nb_add++;
-	      
+
 	} else { // remove
-	      
+
 	  if (d->alternate) { // alternate mode
 	    if (ht_remove(d->set, last)) {
 	      d->nb_removed++;
@@ -160,11 +160,11 @@ void
 	  }
 	  d->nb_remove++;
 	}
-	    
+
       } else { // reads
-	    
+
 	if (cnext) { // contains (no snapshot)
-				
+
 	  if (d->alternate) {
 	    if (d->update == 0) {
 	      if (last < 0) {
@@ -183,19 +183,19 @@ void
 	      }
 	    }
 	  }	else key = rand_range_re(&d->seed, d->range);
-				
+
 	  if (ht_contains(d->set, key))
 	    d->nb_found++;
 	  d->nb_contains++;
 	} else { // snapshot
-	      
+
 	  if (ht_snapshot(d->set, TRANSACTIONAL))
 	    d->nb_snapshoted++;
 	  d->nb_snapshot++;
-	      
+
 	}
       }
-	  
+
       /* Is the next op an update, a move, a contains? */
       if (d->effective) { // a failed remove/add is a read-only tx
 	numtx = d->nb_contains + d->nb_add + d->nb_remove + d->nb_move + d->nb_snapshot;
@@ -212,7 +212,7 @@ void
 
 
   PF_PRINT;
-	
+
   return NULL;
 }
 
@@ -221,14 +221,14 @@ void *test2(void *data)
 {
   int val, newval, last, flag = 1;
   thread_data_t *d = (thread_data_t *)data;
-	
+
   set_cpu(d->id);
   /* Wait on barrier */
   barrier_cross(d->barrier);
-	
+
   last = 0; // to avoid warning
   while (stop == 0) {
-		
+
     val = rand_range_re(&d->seed, 100) - 1;
     /* added for HashTables */
     if (val < d->update) {
@@ -245,21 +245,21 @@ void *test2(void *data)
 	} else {
 	  if (d->alternate) {
 	    /* Remove last value */
-	    if (ht_remove(d->set, last))  
+	    if (ht_remove(d->set, last))
 	      d->nb_removed++;
 	    d->nb_remove++;
 	    flag = 1;
 	  } else {
 	    /* Random computation only in non-alternated cases */
 	    newval = rand_range_re(&d->seed, d->range);
-	    if (ht_remove(d->set, newval)) {  
+	    if (ht_remove(d->set, newval)) {
 	      d->nb_removed++;
 	      /* Repeat until successful, to avoid size variations */
 	      flag = 1;
 	    }
 	    d->nb_remove++;
 	  }
-	} 
+	}
       } else { /* move */
 	val = rand_range_re(&d->seed, d->range);
 	if (ht_move(d->set, last, val, TRANSACTIONAL)) {
@@ -282,13 +282,13 @@ void *test2(void *data)
       }
     }
   }
-	
+
   return NULL;
 }
 
 void print_set(intset_t *set) {
 	node_t *curr, *tmp;
-	
+
 	curr = set->head;
 	tmp = curr;
 	do {
@@ -302,7 +302,7 @@ void print_set(intset_t *set) {
 
 void print_ht(ht_intset_t *set) {
   int i;
-  for (i=0; i < *maxhtlength; i++) 
+  for (i=0; i < *maxhtlength; i++)
     {
       print_set(set->buckets[i]);
     }
@@ -332,10 +332,10 @@ main(int argc, char **argv)
     {"elasticity",                required_argument, NULL, 'x'},
     {NULL, 0, NULL, 0}
   };
-	
+
   ht_intset_t *set;
   int i, c, size;
-  skey_t last = 0; 
+  skey_t last = 0;
   skey_t key = 0;
   unsigned long reads, effreads, updates, effupds, moves, moved, snapshots, snapshoted;
 
@@ -357,22 +357,22 @@ main(int argc, char **argv)
   int alternate = DEFAULT_ALTERNATE;
   int effective = DEFAULT_EFFECTIVE;
   sigset_t block_set;
-	
-  while(1) 
+
+  while(1)
     {
       i = 0;
       c = getopt_long(argc, argv, "hvAf:d:i:n:r:s:u:m:a:l:x:", long_options, &i);
-		
+
       if(c == -1)
 	break;
-		
+
       if(c == 0 && long_options[i].flag == 0)
 	c = long_options[i].val;
-		
-      switch(c) 
+
+      switch(c)
 	{
 	case 0:
-	  // Flag is automatically set 
+	  // Flag is automatically set
 	  break;
 	case 'h':
 	  printf("ASCYLIB -- stress test "
@@ -451,7 +451,7 @@ main(int argc, char **argv)
 	  exit(1);
 	}
     }
-	
+
   assert(duration >= 0);
   assert(initial >= 0);
   assert(nb_threads > 0);
@@ -466,7 +466,7 @@ main(int argc, char **argv)
     {
       range = 2 * initial;
     }
-	
+
   if (test_verbose)
     {
       printf("Set type     : hash table\n");
@@ -479,7 +479,7 @@ main(int argc, char **argv)
       printf("Move rate    : %d\n", move);
       printf("Snapshot rate: %d\n", snapshot);
       printf("Elasticity   : %d\n", unit_tx);
-      printf("Alternate    : %d\n", alternate);	
+      printf("Alternate    : %d\n", alternate);
       printf("Effective    : %d\n", effective);
       printf("Type sizes   : int=%d/long=%d/ptr=%d/word=%d\n",
 	     (int)sizeof(int),
@@ -487,11 +487,11 @@ main(int argc, char **argv)
 	     (int)sizeof(void *),
 	     (int)sizeof(uintptr_t));
     }
-	
+
   timeout.tv_sec = duration / 1000;
   timeout.tv_nsec = (duration % 1000) * 1000000;
-	
-  if ((data = (thread_data_t *)memalign(64, nb_threads * sizeof(thread_data_t))) == NULL) 
+
+  if ((data = (thread_data_t *)aligned_alloc(64, nb_threads * sizeof(thread_data_t))) == NULL)
     {
       perror("malloc");
       exit(1);
@@ -500,37 +500,37 @@ main(int argc, char **argv)
     perror("malloc");
     exit(1);
   }
-	
+
   srand((int)time(0));
-  maxhtlength = (unsigned int*) ssalloc(64);//memalign(64, 64);
+  maxhtlength = (unsigned int*) ssalloc(64);//aligned_alloc(64, 64);
   assert(maxhtlength != NULL);
 
   *maxhtlength = (unsigned int) initial / load_factor;
   set = ht_new();
-	
+
   /* stop = 0; */
   *running = 1;
-	
-  // Init STM 
+
+  // Init STM
   if (test_verbose)
     {
       printf("Initializing STM\n");
-    }	
-	
-  // Populate set 
+    }
+
+  // Populate set
   if (test_verbose)
     {
       printf("Adding %d entries to set\n", initial);
     }
 
   i = 0;
-  while (i < initial) 
+  while (i < initial)
     {
       key = rand_range(range);
-      if (ht_add(set, key, key)) 
+      if (ht_add(set, key, key))
 	{
 	  last = key;
-	  i++;			
+	  i++;
 	}
     }
 
@@ -545,15 +545,15 @@ main(int argc, char **argv)
       printf("Set size     : %d\n", size);
       printf("Bucket amount: %d\n", *maxhtlength);
       printf("Load         : %d\n", load_factor);
-    }	
+    }
 
-  // Access set from all threads 
+  // Access set from all threads
   barrier_init(&barrier, nb_threads + 1);
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
   printf("Creating threads: ");
-  for (i = 0; i < nb_threads; i++) 
+  for (i = 0; i < nb_threads; i++)
     {
       printf("%2d, ", i);
       data[i].first = last;
@@ -581,7 +581,7 @@ main(int argc, char **argv)
       data[i].failures_because_contention = 0;
       data[i].id = i;
 
-      if (pthread_create(&threads[i], &attr, test, (void *)(&data[i])) != 0) 
+      if (pthread_create(&threads[i], &attr, test, (void *)(&data[i])) != 0)
 	{
 	  fprintf(stderr, "Error creating thread\n");
 	  exit(1);
@@ -589,10 +589,10 @@ main(int argc, char **argv)
     }
   printf("\n");
   pthread_attr_destroy(&attr);
-	
-  // Start threads 
+
+  // Start threads
   barrier_cross(&barrier);
-	
+
   printf("STARTING...\n");
   gettimeofday(&start, NULL);
   if (duration > 0) {
@@ -608,8 +608,8 @@ main(int argc, char **argv)
   gettimeofday(&end, NULL);
   printf("STOPPING...\n");
   //print_ht(set);
-	
-  // Wait for thread completion 
+
+  // Wait for thread completion
   for (i = 0; i < nb_threads; i++) {
     if (pthread_join(threads[i], NULL) != 0) {
       fprintf(stderr, "Error waiting for thread completion\n");
@@ -626,7 +626,7 @@ main(int argc, char **argv)
   moved = 0;
   snapshots = 0;
   snapshoted = 0;
-  for (i = 0; i < nb_threads; i++) 
+  for (i = 0; i < nb_threads; i++)
     {
       if (test_verbose)
 	{
@@ -643,13 +643,13 @@ main(int argc, char **argv)
 	  printf("  #snapshoted : %lu\n", data[i].nb_snapshoted);
 	}
       reads += data[i].nb_contains;
-      effreads += data[i].nb_contains + 
-	(data[i].nb_add - data[i].nb_added) + 
-	(data[i].nb_remove - data[i].nb_removed) + 
+      effreads += data[i].nb_contains +
+	(data[i].nb_add - data[i].nb_added) +
+	(data[i].nb_remove - data[i].nb_removed) +
 	(data[i].nb_move - data[i].nb_moved) +
 	data[i].nb_snapshoted;
       updates += (data[i].nb_add + data[i].nb_remove + data[i].nb_move);
-      effupds += data[i].nb_removed + data[i].nb_added + data[i].nb_moved; 
+      effupds += data[i].nb_removed + data[i].nb_added + data[i].nb_moved;
       moves += data[i].nb_move;
       moved += data[i].nb_moved;
       snapshots += data[i].nb_snapshot;
@@ -659,7 +659,7 @@ main(int argc, char **argv)
   printf("Set size      : %d (expected: %d)\n", ht_size(set), size);
   printf("Duration      : %d (ms)\n", duration);
   printf("#txs          : %lu (%f / s)\n", reads + updates + snapshots, (reads + updates + snapshots) * 1000.0 / duration);
-	
+
   if (test_verbose)
     {
       printf("#read txs     : ");
@@ -667,26 +667,26 @@ main(int argc, char **argv)
 	printf("%lu (%f / s)\n", effreads, effreads * 1000.0 / duration);
 	printf("  #cont/snpsht: %lu (%f / s)\n", reads, reads * 1000.0 / duration);
       } else printf("%lu (%f / s)\n", reads, reads * 1000.0 / duration);
-	
+
       printf("#eff. upd rate: %f \n", 100.0 * effupds / (effupds + effreads));
-	
+
       printf("#update txs   : ");
       if (effective) {
 	printf("%lu (%f / s)\n", effupds, effupds * 1000.0 / duration);
-	printf("  #upd trials : %lu (%f / s)\n", updates, updates * 1000.0 / 
+	printf("  #upd trials : %lu (%f / s)\n", updates, updates * 1000.0 /
 	       duration);
       } else printf("%lu (%f / s)\n", updates, updates * 1000.0 / duration);
-	
+
       printf("#move txs     : %lu (%f / s)\n", moves, moves * 1000.0 / duration);
       printf("  #moved      : %lu (%f / s)\n", moved, moved * 1000.0 / duration);
       printf("#snapshot txs : %lu (%f / s)\n", snapshots, snapshots * 1000.0 / duration);
       printf("  #snapshoted : %lu (%f / s)\n", snapshoted, snapshoted * 1000.0 / duration);
-    }	
-  // Delete set 
+    }
+  // Delete set
   /* ht_delete(set); */
-	
+
   free(threads);
   free(data);
-	
+
   return 0;
 }

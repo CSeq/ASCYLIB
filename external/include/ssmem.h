@@ -1,4 +1,4 @@
-/*   
+/*
  *   File: ssmem.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
  *   Description: ssmem interface and structures
@@ -48,13 +48,13 @@
 #define SSMEM_MEM_SIZE_DOUBLE  1 /* if the allocator is out of memory, should it allocate
 				  a 2x larger chunk than before? (in order to stop asking
 				 for memory again and again */
-#define SSMEM_MEM_SIZE_MAX     (4 * 1024 * 1024 * 1024LL) /* absolute max chunk size 
+#define SSMEM_MEM_SIZE_MAX     (4 * 1024 * 1024 * 1024LL) /* absolute max chunk size
 							   (e.g., if doubling is 1) */
 
-/* increase the thread-local timestamp of activity on each ssmem_alloc() and/or ssmem_free() 
-   call. If enabled (>0), after some memory is alloced and/or freed, the thread should not 
+/* increase the thread-local timestamp of activity on each ssmem_alloc() and/or ssmem_free()
+   call. If enabled (>0), after some memory is alloced and/or freed, the thread should not
    access ANY ssmem-protected memory that was read (the reference were taken) before the
-   current alloc or free invocation. If disabled (0), the program should employ manual 
+   current alloc or free invocation. If disabled (0), the program should employ manual
    SSMEM_SAFE_TO_RECLAIM() calls to indicate when the thread does not hold any ssmem-allocated
    memory references. */
 
@@ -90,7 +90,7 @@ typedef struct ALIGNED(CACHE_LINE_SIZE) ssmem_allocator
 
       struct ssmem_ts* ts;	/* timestamp object associated with the allocator */
 
-      struct ssmem_free_set* free_set_list; /* list of free_set. A free set holds freed mem 
+      struct ssmem_free_set* free_set_list; /* list of free_set. A free set holds freed mem
 					     that has not yet been reclaimed */
       size_t free_set_num;	/* number of sets in the free_set_list */
       struct ssmem_free_set* collected_set_list; /* list of collected_set. A collected set
@@ -120,8 +120,8 @@ typedef struct ALIGNED(CACHE_LINE_SIZE) ssmem_ts
   uint8_t padding[CACHE_LINE_SIZE];
 } ssmem_ts_t;
 
-/* 
- * a timestamped free_set. It holds:  
+/*
+ * a timestamped free_set. It holds:
  *  1. the collection of timestamps at the point when the free_set gets full
  *  2. the array of freed pointers to be used by ssmem_free()
  *  3. a set_next pointer in order to be able to create linked lists of
@@ -131,13 +131,13 @@ typedef struct ALIGNED(CACHE_LINE_SIZE) ssmem_free_set
 {
   size_t* ts_set;		/* set of timestamps for GC */
   size_t size;
-  long int curr;		
+  long int curr;
   struct ssmem_free_set* set_next;
   uintptr_t* set;
 } ssmem_free_set_t;
 
 
-/* 
+/*
  * a timestamped node of released memory. The memory will be returned to the OS
  * (free(node->mem)) when the current timestamp is greater than the one of the node
  */
@@ -150,7 +150,7 @@ typedef struct ssmem_released
 
 /*
  * a generic list that keeps track of actual memory that has been allocated
- * (using malloc / memalign) and the different allocators that the list is using
+ * (using malloc / aligned_alloc) and the different allocators that the list is using
  */
 typedef struct ssmem_list
 {

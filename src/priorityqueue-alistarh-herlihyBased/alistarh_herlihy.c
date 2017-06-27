@@ -1,6 +1,6 @@
-/*   
+/*
  *   File: alistarh_herlihy.c
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
  *  	     Egeyar Bagcioglu <egeyar.bagcioglu@epfl.ch>
  *   Description: D. Alistarh, J. Kopinsky, J. Li, N. Shavit. The SprayList:
@@ -62,7 +62,7 @@ alistarh_init(int _num_threads, sl_intset_t* set, int padding)
   max_jump_length = floor_log_2(num_threads)+1;
   cleaner_percentage = (99+(num_threads/2))/num_threads;
   cleaner_percentage = cleaner_percentage>1?cleaner_percentage:1;
-  
+
   if (padding)
   {
     int i=1, num_dummies = num_threads*floor_log_2(num_threads)/2;
@@ -81,7 +81,7 @@ alistarh_init(int _num_threads, sl_intset_t* set, int padding)
   }
   return;
 }
-int				
+int
 fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **right_list)
 {
   int i;
@@ -113,7 +113,7 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
 	    {
 	      break;
 	    }
-	  left = right; 
+	  left = right;
 	  left_next = right_next;
 	}
       /* Ensure left and right nodes are adjacent */
@@ -134,7 +134,7 @@ fraser_search(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **r
   return (right->key == key);
 }
 
-int				
+int
 fraser_search_no_cleanup(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl_node_t **right_list)
 {
   PARSE_TRY();
@@ -172,7 +172,7 @@ fraser_search_no_cleanup(sl_intset_t *set, skey_t key, sl_node_t **left_list, sl
   return (right->key == key);
 }
 
-int				
+int
 fraser_search_no_cleanup_succs(sl_intset_t *set, skey_t key, sl_node_t **right_list)
 {
   PARSE_TRY();
@@ -204,15 +204,15 @@ fraser_search_no_cleanup_succs(sl_intset_t *set, skey_t key, sl_node_t **right_l
   return (right->key == key);
 }
 
-static sl_node_t* 
+static sl_node_t*
 fraser_left_search(sl_intset_t *set, skey_t key)
 {
   PARSE_TRY();
   sl_node_t* left = NULL;
   sl_node_t* left_prev;
-  
+
   left_prev = set->head;
-  int lvl;  
+  int lvl;
   for (lvl = levelmax - 1; lvl >= 0; lvl--)
     {
       left = GET_UNMARKED(left_prev->next[lvl]);
@@ -249,12 +249,12 @@ fraser_find(sl_intset_t *set, skey_t key)
   return result;
 }
 
-inline int
+static inline int
 mark_node_ptrs(sl_node_t *n)
 {
   int i, cas = 0;
   sl_node_t* n_next;
-	
+
   for (i = n->toplevel - 1; i >= 0; i--)
     {
       do
@@ -266,7 +266,7 @@ mark_node_ptrs(sl_node_t *n)
       	      break;
       	    }
 	  cas = ATOMIC_CAS_MB(&n->next[i], GET_UNMARKED(n_next), set_mark((uintptr_t)n_next));
-      	} 
+      	}
       while (!cas);
     }
   return (cas);	/* if I was the one that marked lvl 0 */
@@ -310,7 +310,7 @@ alistarh_deleteMin(sl_intset_t *set)
   sval_t result;
   sl_node_t *next, *node;
   int i, level;
-  
+
  retry:
   if (unlikely(rand_range(100) <= cleaner_percentage))
   { //become cleaner
@@ -337,7 +337,7 @@ alistarh_deleteMin(sl_intset_t *set)
   else //spray & mark as deleted
   {
     UPDATE_TRY();
-  
+
     PARSE_START_TS(3);
     result = 0;
     node = set->head;
@@ -354,20 +354,20 @@ alistarh_deleteMin(sl_intset_t *set)
       }
     }
     PARSE_END_TS(3, lat_parsing_deleteMin++);
-  
+
     if (unlikely(node == set->head))
       goto retry;
-    
+
     if (unlikely(node->val == KEY_MIN+1))
       goto retry;
-  
+
         int my_delete = mark_node_ptrs(node);
-  
+
     if (my_delete)
     {
       result = node->val;
     }
-    
+
     else
     {
 	  goto retry;
@@ -377,14 +377,14 @@ alistarh_deleteMin(sl_intset_t *set)
 }
 
 int
-fraser_insert(sl_intset_t *set, skey_t key, sval_t val) 
+fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
 {
   sl_node_t *new, *pred, *succ;
   sl_node_t *succs[FRASER_MAX_MAX_LEVEL], *preds[FRASER_MAX_MAX_LEVEL];
   int i, found;
 
   PARSE_START_TS(1);
- retry: 	
+ retry:
   UPDATE_TRY();
 
   found = fraser_search(set, key, preds, succs);
@@ -415,9 +415,9 @@ fraser_insert(sl_intset_t *set, skey_t key, sval_t val)
       goto retry;
     }
 
-  for (i = 1; i < new->toplevel; i++) 
+  for (i = 1; i < new->toplevel; i++)
     {
-      while (1) 
+      while (1)
 	{
 	  pred = preds[i];
 	  succ = succs[i];
@@ -441,7 +441,7 @@ alistarh_spray(sl_intset_t *set)
 {
   sl_node_t *next, *node;
   int i, level;
-  
+
  retry:
   UPDATE_TRY();
   PARSE_START_TS(3);

@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: optik.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description:  
+ *   Description:
  *   optik.c is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -39,7 +39,7 @@ queue_rcu_op_on(queue_t* qu)
 {
   if (unlikely(__rcu_node == NULL))
     {
-      __rcu_node = memalign(CACHE_LINE_SIZE, sizeof(rcu_node_t));
+      __rcu_node = aligned_alloc(CACHE_LINE_SIZE, sizeof(rcu_node_t));
       assert(__rcu_node != NULL);
       __rcu_node->next = SWAP_PTR(&qu->threads, __rcu_node);
     }
@@ -72,13 +72,13 @@ queue_rcu_wait_others(queue_t* qu)
   while (num_on > 1);
 }
 
-static inline int 
+static inline int
 queue_is_empty(const size_t tail, const size_t head, const size_t hash)
 {
   return (head >= tail) && ((tail - head) < hash);
 }
 
-static inline int 
+static inline int
 queue_is_full(const size_t tail, const size_t head, const size_t hash)
 {
   return ((tail - head) > (hash-1));
@@ -104,7 +104,7 @@ queue_optik_resize(queue_t* qu, size_t* tail_new)
       queue_rcu_wait_others(qu);
       size_t size_new = qu->size << 1;
       size_t hash_new = size_new - 1;
-      queue_node_t** array_new = (queue_node_t**) memalign(CACHE_LINE_SIZE, size_new * sizeof(queue_node_t*));
+      queue_node_t** array_new = (queue_node_t**) aligned_alloc(CACHE_LINE_SIZE, size_new * sizeof(queue_node_t*));
       assert(array_new != NULL);
 
       size_t hash = qu->hash;
@@ -141,7 +141,7 @@ queue_optik_resize(queue_t* qu, size_t* tail_new)
 
       optik_unlock(&qu->lock);
       free(array_old);
-      return 1; 
+      return 1;
     }
   else
     {
@@ -153,7 +153,7 @@ queue_optik_resize(queue_t* qu, size_t* tail_new)
 
 static const int qpt = 1024;
 
-static void UNUSED 
+static void UNUSED
 queue_pause(int n)
 {
   volatile int nn = n;

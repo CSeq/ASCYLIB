@@ -1,4 +1,4 @@
-/*   
+/*
  *   File: copy_on_write.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
  *   Description: Similar to Java's CopyOnWriteArrayList.
@@ -28,7 +28,7 @@ LOCK_LOCAL_DATA;
 
 size_t array_ll_fixed_size;
 
-inline void 
+inline void
 cpy_delete_copy(ssmem_allocator_t* alloc, array_ll_t* a)
 {
 #if GC == 1
@@ -45,9 +45,9 @@ static inline volatile array_ll_t*
 array_ll_new_init(size_t size)
 {
   array_ll_t* all;
-  all = memalign(CACHE_LINE_SIZE, sizeof(array_ll_t) + (array_ll_fixed_size * sizeof(kv_t)));
+  all = aligned_alloc(CACHE_LINE_SIZE, sizeof(array_ll_t) + (array_ll_fixed_size * sizeof(kv_t)));
   assert(all != NULL);
-  
+
   all->size = size;
   all->kvs = (kv_t*) ((uintptr_t) all + sizeof(array_ll_t));
 
@@ -64,7 +64,7 @@ array_ll_new(size_t size)
   all = ssalloc(sizeof(array_ll_t) + (array_ll_fixed_size * sizeof(kv_t)));
 #endif
   assert(all != NULL);
-  
+
   all->size = size;
   all->kvs = (kv_t*) ((uintptr_t) all + sizeof(array_ll_t));
 
@@ -95,7 +95,7 @@ copy_on_write_new()
 
 
 sval_t
-cpy_search(copy_on_write_t* set, skey_t key) 
+cpy_search(copy_on_write_t* set, skey_t key)
 {
   array_ll_t* all_cur = (array_ll_t*) set->array;
 
@@ -159,7 +159,7 @@ cpy_delete(copy_on_write_t* set, skey_t key)
 }
 
 int
-cpy_insert(copy_on_write_t* set, skey_t key, sval_t val) 
+cpy_insert(copy_on_write_t* set, skey_t key, sval_t val)
 {
 
 #if CPY_ON_WRITE_READ_ONLY_FAIL == 1
@@ -189,7 +189,7 @@ cpy_insert(copy_on_write_t* set, skey_t key, sval_t val)
 
   all_new->kvs[i].key = key;
   all_new->kvs[i].val = val;
-  
+
 #ifdef __tile__
   MEM_BARRIER;
 #endif
