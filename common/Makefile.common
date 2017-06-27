@@ -6,7 +6,7 @@
 TBB_LIBS      ?= /home/trigonak/code/tbb42_20140122oss/build/linux_intel64_gcc_cc4.8_libc2.17_kernel3.11.0_release
 TBB_INCLUDES  ?= /home/trigonak/code/tbb42_20140122oss/include
 
-URCU_PATH     ?= /home/trigonak/code/urcu #path to the URCU installation 
+URCU_PATH     ?= /home/trigonak/code/urcu #path to the URCU installation
 
 # Compiler
 SOLARIS_CC1 	?= /opt/csw/bin/gcc
@@ -83,13 +83,13 @@ endif
 # Platform dependent settings
 #############################
 #
-# GCC thread-local storage requires "significant 
+# GCC thread-local storage requires "significant
 # support from the linker (ld), dynamic linker
 # (ld.so), and system libraries (libc.so and libpthread.so), so it is
 # not available everywhere." source: GCC-doc.
 #
-# pthread_spinlock is replaced by pthread_mutex 
-# on MacOS X, as it might not be supported. 
+# pthread_spinlock is replaced by pthread_mutex
+# on MacOS X, as it might not be supported.
 # Comment LOCK = MUTEX below to enable.
 
 ifndef OS_NAME
@@ -138,7 +138,7 @@ endif
 ifeq ($(PC_NAME), lpd48core)
     PLATFORM_KNOWN = 1
     CC = gcc-4.8
-    CFLAGS += -DOPTERON -DPLATFORM_MCORE 
+    CFLAGS += -DOPTERON -DPLATFORM_MCORE
     PLATFORM_NUMA = 1
 endif
 ifeq ($(PC_NAME), lpdxeon2680)
@@ -155,7 +155,7 @@ endif
 
 ifeq ($(PC_NAME), lpdpc34)
     PLATFORM_KNOWN = 1
-    CFLAGS += -DHASWELL 
+    CFLAGS += -DHASWELL
     PLATFORM_NUMA = 0
 endif
 
@@ -266,7 +266,10 @@ LDFLAGS += -lpthread -lrt -lm
 
 TEST_FILE = test_simple.c
 ifeq ($(TEST),old)
-	TEST_FILE = test.c
+    TEST_FILE = test.c
+    CFLAGS += -DGC=0
+else ifeq ($(TEST),custom)
+	TEST_FILE = test_custom.c
 	CFLAGS += -DGC=0
 else
 
@@ -283,7 +286,7 @@ else
 			CFLAGS += -DGC=0
 		else ifeq ($(GC),2)
 			CFLAGS += -DGC=2
-		else	
+		else
 			CFLAGS += -DGC=1
 		endif
 	endif
