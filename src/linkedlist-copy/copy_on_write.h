@@ -1,4 +1,4 @@
-/*   
+/*
  *   File: copy_on_write.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
  *   Description: Similar to Java's CopyOnWriteArrayList.
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 
 #include "common.h"

@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: skiplist-lock.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   skiplist-lock.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -34,7 +34,8 @@
 
 #include "common.h"
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 #include "ssmem.h"
 
@@ -54,7 +55,7 @@ extern unsigned int levelmax, size_pad_32;
 typedef volatile struct sl_node
 {
   skey_t key;
-  sval_t val; 
+  sval_t val;
   uint32_t toplevel;
   volatile uint32_t marked;
   volatile uint32_t fullylinked;
@@ -67,7 +68,7 @@ typedef volatile struct sl_node
   volatile struct sl_node* next[1];
 } sl_node_t;
 
-typedef ALIGNED(CACHE_LINE_SIZE) struct sl_intset 
+typedef ALIGNED(CACHE_LINE_SIZE) struct sl_intset
 {
   sl_node_t *head;
 #if defined(LL_GLOBAL_LOCK)
@@ -78,13 +79,13 @@ typedef ALIGNED(CACHE_LINE_SIZE) struct sl_intset
 int get_rand_level();
 int floor_log_2(unsigned int n);
 
-/* 
- * Create a new node without setting its next fields. 
+/*
+ * Create a new node without setting its next fields.
  */
 sl_node_t* sl_new_simple_node(skey_t key, sval_t val, int toplevel, int transactional);
-/* 
- * Create a new node with its next field. 
- * If next=NULL, then this create a tail node. 
+/*
+ * Create a new node with its next field.
+ * If next=NULL, then this create a tail node.
  */
 sl_node_t *sl_new_node(skey_t key, sval_t val, sl_node_t *next, int toplevel, int transactional);
 void sl_delete_node(sl_node_t* n);

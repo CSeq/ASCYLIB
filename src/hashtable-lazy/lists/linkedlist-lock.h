@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: linkedlist-lock.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   linkedlist-lock.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 
 #include "common.h"
@@ -66,7 +67,7 @@ typedef ALIGNED(32) volatile struct node_l
 
 STATIC_ASSERT(sizeof(node_l_t) % 32 == 0, "sizeof(node_l_t) should be 32bytes aligned");
 
-typedef struct intset_l 
+typedef struct intset_l
 {
   node_l_t* head;
 #if defined(LL_GLOBAL_LOCK)

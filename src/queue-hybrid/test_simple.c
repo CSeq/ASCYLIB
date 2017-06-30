@@ -39,7 +39,8 @@
 #include <unistd.h>
 #include <malloc.h>
 #include "utils.h"
-#include "atomic_ops.h"
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "rapl_read.h"
 #ifdef __sparc__
 #  include <sys/types.h>

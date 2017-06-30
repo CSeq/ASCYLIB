@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: map-lock.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   map-lock.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 #include "optik.h"
 

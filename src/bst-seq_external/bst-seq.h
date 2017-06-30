@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: bst-seq.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   bst-seq.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 
 #include "common.h"

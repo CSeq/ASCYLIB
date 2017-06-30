@@ -1,0 +1,18 @@
+{
+    "project": "tada",
+    "target": "tada.c",
+    "sources": [
+        "../ssalloc.c",
+        "skiplist.c",
+        "fraser.c",
+        "intset.c",
+        "test_custom.c"
+    ],
+    "include_paths": [
+        "./",
+        "../",
+        "../../include",
+        "../../external/include"
+    ]
+}
+

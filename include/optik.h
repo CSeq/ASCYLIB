@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: optik.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   bst.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -33,7 +33,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdint.h>
-#include <atomic_ops.h>
+//#include <atomic_ops.h>
+#include "atomic_ops_if.h"
 
 #include "common.h"
 #include "utils.h"
@@ -127,8 +128,8 @@ extern size_t __optik_trylock_calls_suc_tot;
 
 #else
 #  define OPTIK_STATS_VARS_DEFINITION()
-#  define OPTIK_STATS_TRYLOCK_CALLS_INC()	   
-#  define OPTIK_STATS_TRYLOCK_CAS_INC()	   
+#  define OPTIK_STATS_TRYLOCK_CALLS_INC()
+#  define OPTIK_STATS_TRYLOCK_CAS_INC()
 #  define OPTIK_STATS_TRYLOCK_CALLS_SUC_INC(by)
 #  define OPTIK_STATS_PUBLISH()
 #  define OPTIK_STATS_PRINT()
@@ -669,10 +670,10 @@ optik_get_type_name()
 }
 
 #  define OPTIK_INIT    { 0, 0 }
-#  define OPTIK_LOCKED  0x1 
-#  define OPTIK_FREE    0x0 
+#  define OPTIK_LOCKED  0x1
+#  define OPTIK_FREE    0x0
 
-typedef volatile struct 
+typedef volatile struct
 {
   uint32_t lock;
   uint32_t version;

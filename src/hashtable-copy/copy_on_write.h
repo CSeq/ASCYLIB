@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: copy_on_write.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: Similar to Java's CopyOnWriteArrayList. One array per bucket. 
+ *   Description: Similar to Java's CopyOnWriteArrayList. One array per bucket.
  *   http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/CopyOnWriteArrayList.html
  *   copy_on_write.h is part of ASCYLIB
  *
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 
 #include "common.h"

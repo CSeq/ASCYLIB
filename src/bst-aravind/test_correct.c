@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: test_correct.c
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   test_correct.c is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -39,7 +39,8 @@
 #include <unistd.h>
 #include <malloc.h>
 #include "utils.h"
-#include "atomic_ops.h"
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "ssmem.h"
 #ifdef __sparc__
 #  include <sys/types.h>
@@ -70,12 +71,12 @@
  * ################################################################### */
 
 size_t initial = DEFAULT_INITIAL;
-size_t range = DEFAULT_RANGE; 
+size_t range = DEFAULT_RANGE;
 size_t update = DEFAULT_UPDATE;
-size_t num_threads = DEFAULT_NB_THREADS; 
+size_t num_threads = DEFAULT_NB_THREADS;
 size_t duration = DEFAULT_DURATION;
 
-size_t print_vals_num = 100; 
+size_t print_vals_num = 100;
 size_t pf_vals_num = 1023;
 size_t put, put_explicit = false;
 double update_rate, put_rate, get_rate;
@@ -123,7 +124,7 @@ typedef struct thread_data
 } thread_data_t;
 
 void*
-test(void* thread) 
+test(void* thread)
 {
   thread_data_t* td = (thread_data_t*) thread;
   uint32_t ID = td->id;
@@ -151,12 +152,12 @@ test(void* thread)
   uint64_t my_putting_count_succ = 0;
   uint64_t my_getting_count_succ = 0;
   uint64_t my_removing_count_succ = 0;
-    
+
 #if defined(COMPUTE_LATENCY) && PFD_TYPE == 0
   volatile ticks start_acq, end_acq;
   volatile ticks correction = getticks_correction_calc();
 #endif
-    
+
   seeds = seed_rand();
 #if GC == 1
   alloc = (ssmem_allocator_t*) malloc(sizeof(ssmem_allocator_t));
@@ -166,7 +167,7 @@ test(void* thread)
   assert(alloc_data != NULL);
   ssmem_alloc_init(alloc_data, SSMEM_DEFAULT_MEM_SIZE, ID);
 #endif
-    
+
   DS_KEY key;
   size_t* val = NULL;
   int c = 0;
@@ -180,11 +181,11 @@ test(void* thread)
     {
       num_elems_thread++;
     }
-    
-  for(i = 0; i < num_elems_thread; i++) 
+
+  for(i = 0; i < num_elems_thread; i++)
     {
       key = (my_random(&(seeds[0]), &(seeds[1]), &(seeds[2])) % (rand_max + 1)) + rand_min;
-      
+
       if (val == NULL)
 	{
 	  val = (size_t*) ssmem_alloc(alloc_data, sizeof(size_t));
@@ -209,7 +210,7 @@ test(void* thread)
     }
 
   barrier_cross(&barrier_global);
-  while (stop == 0) 
+  while (stop == 0)
     {
       c = (uint32_t)(my_random(&(seeds[0]),&(seeds[1]),&(seeds[2])));
       key = (c & rand_max) + rand_min;
@@ -234,14 +235,14 @@ test(void* thread)
 	    }
 	  ADD_DUR_FAIL(my_putting_fail);
 	  my_putting_count++;
-	} 
+	}
       else if(unlikely(c <= scale_rem))
 	{
 	  size_t* removed;
 	  START_TS(2);
 	  removed = (size_t*) DS_REMOVE(key, set);
 	  END_TS(2, my_removing_count);
-	  if(removed != NULL) 
+	  if(removed != NULL)
 	    {
 	      ADD_DUR(my_removing_succ);
 	      my_removing_count_succ++;
@@ -255,13 +256,13 @@ test(void* thread)
 	  my_removing_count++;
 	}
       else
-	{ 
+	{
 	  size_t* res;
       sval_t search_res;
 	  START_TS(0);
 	  search_res = DS_CONTAINS(key, set);
 	  END_TS(0, my_getting_count);
-	  if(search_res != 0) 
+	  if(search_res != 0)
 	    {
 
         res = (size_t*) search_res->value;
@@ -319,7 +320,7 @@ test(void* thread)
 }
 
 int
-main(int argc, char **argv) 
+main(int argc, char **argv)
 {
   set_cpu(0);
   ssalloc_init();
@@ -340,18 +341,18 @@ main(int argc, char **argv)
   };
 
   int i, c;
-  while(1) 
+  while(1)
     {
       i = 0;
       c = getopt_long(argc, argv, "hAf:d:i:n:r:s:u:m:a:p:b:v:f:", long_options, &i);
-		
+
       if(c == -1)
 	break;
-		
+
       if(c == 0 && long_options[i].flag == 0)
 	c = long_options[i].val;
-		
-      switch(c) 
+
+      switch(c)
 	{
 	case 0:
 	  /* Flag is automatically set */
@@ -471,14 +472,14 @@ main(int argc, char **argv)
 
 
   rand_max = range - 1;
-    
+
   struct timeval start, end;
   struct timespec timeout;
   timeout.tv_sec = duration / 1000;
   timeout.tv_nsec = (duration % 1000) * 1000000;
-    
+
   stop = 0;
-    
+
   DS_TYPE* set = DS_NEW();
   assert(set != NULL);
 
@@ -495,19 +496,19 @@ main(int argc, char **argv)
   getting_count_succ = (ticks *) calloc(num_threads , sizeof(ticks));
   removing_count = (ticks *) calloc(num_threads , sizeof(ticks));
   removing_count_succ = (ticks *) calloc(num_threads , sizeof(ticks));
-    
+
   pthread_t threads[num_threads];
   pthread_attr_t attr;
   int rc;
   void *status;
-    
+
   barrier_init(&barrier_global, num_threads + 1);
   barrier_init(&barrier, num_threads);
-    
+
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    
+
   thread_data_t* tds = (thread_data_t*) malloc(num_threads * sizeof(thread_data_t));
 
   long t;
@@ -521,12 +522,12 @@ main(int argc, char **argv)
 	  printf("ERROR; return code from pthread_create() is %d\n", rc);
 	  exit(-1);
 	}
-        
+
     }
-    
+
   /* Free attribute and wait for the other threads */
   pthread_attr_destroy(&attr);
-    
+
   barrier_cross(&barrier_global);
   gettimeofday(&start, NULL);
   nanosleep(&timeout, NULL);
@@ -534,11 +535,11 @@ main(int argc, char **argv)
   stop = 1;
   gettimeofday(&end, NULL);
   duration = (end.tv_sec * 1000 + end.tv_usec / 1000) - (start.tv_sec * 1000 + start.tv_usec / 1000);
-    
-  for(t = 0; t < num_threads; t++) 
+
+  for(t = 0; t < num_threads; t++)
     {
       rc = pthread_join(threads[t], &status);
-      if (rc) 
+      if (rc)
 	{
 	  printf("ERROR; return code from pthread_join() is %d\n", rc);
 	  exit(-1);
@@ -546,7 +547,7 @@ main(int argc, char **argv)
     }
 
   free(tds);
-    
+
   volatile ticks putting_suc_total = 0;
   volatile ticks putting_fal_total = 0;
   volatile ticks getting_suc_total = 0;
@@ -559,8 +560,8 @@ main(int argc, char **argv)
   volatile uint64_t getting_count_total_succ = 0;
   volatile uint64_t removing_count_total = 0;
   volatile uint64_t removing_count_total_succ = 0;
-    
-  for(t=0; t < num_threads; t++) 
+
+  for(t=0; t < num_threads; t++)
     {
       PRINT_OPS_PER_THREAD();
       putting_suc_total += putting_succ[t];
@@ -587,7 +588,7 @@ main(int argc, char **argv)
   long unsigned rem_fal = (removing_count_total - removing_count_total_succ) ? removing_fal_total / (removing_count_total - removing_count_total_succ) : 0;
   printf("%-7zu %-8lu %-8lu %-8lu %-8lu %-8lu %-8lu\n", num_threads, get_suc, get_fal, put_suc, put_fal, rem_suc, rem_fal);
 #endif
-    
+
 #define LLU long long unsigned int
 
   int UNUSED pr = (int) (putting_count_total_succ - removing_count_total_succ);
@@ -605,18 +606,18 @@ main(int argc, char **argv)
   double getting_perc_succ = (1 - (double) (getting_count_total - getting_count_total_succ) / getting_count_total) * 100;
   double removing_perc = 100.0 * (1 - ((double)(total - removing_count_total) / total));
   double removing_perc_succ = (1 - (double) (removing_count_total - removing_count_total_succ) / removing_count_total) * 100;
-  printf("srch: %-10llu | %-10llu | %10.1f%% | %10.1f%% | \n", (LLU) getting_count_total, 
+  printf("srch: %-10llu | %-10llu | %10.1f%% | %10.1f%% | \n", (LLU) getting_count_total,
 	 (LLU) getting_count_total_succ,  getting_perc_succ, getting_perc);
-  printf("insr: %-10llu | %-10llu | %10.1f%% | %10.1f%% | %10.1f%%\n", (LLU) putting_count_total, 
+  printf("insr: %-10llu | %-10llu | %10.1f%% | %10.1f%% | %10.1f%%\n", (LLU) putting_count_total,
 	 (LLU) putting_count_total_succ, putting_perc_succ, putting_perc, (putting_perc * putting_perc_succ) / 100);
-  printf("rems: %-10llu | %-10llu | %10.1f%% | %10.1f%% | %10.1f%%\n", (LLU) removing_count_total, 
+  printf("rems: %-10llu | %-10llu | %10.1f%% | %10.1f%% | %10.1f%%\n", (LLU) removing_count_total,
 	 (LLU) removing_count_total_succ, removing_perc_succ, removing_perc, (removing_perc * removing_perc_succ) / 100);
 
   double throughput = (putting_count_total + getting_count_total + removing_count_total) * 1000.0 / duration;
   printf("#txs %zu\t(%-10.0f\n", num_threads, throughput);
   printf("#Mops %.3f\n", throughput / 1e6);
-    
+
   pthread_exit(NULL);
-    
+
   return 0;
 }

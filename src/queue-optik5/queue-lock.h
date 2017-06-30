@@ -1,7 +1,7 @@
-/*   
+/*
  *   File: skiplist-lock.h
  *   Author: Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   skiplist-lock.h is part of ASCYLIB
  *
 n * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -33,7 +33,8 @@ n * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
 
 #include "common.h"
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 #include "ssmem.h"
 #include "optik.h"
@@ -77,13 +78,13 @@ typedef ALIGNED(CACHE_LINE_SIZE) struct queue
 STATIC_ASSERT(sizeof(queue_t) == 192, "sizeof(queue_t) == 192");
 
 
-/* 
- * Create a new node without setting its next fields. 
+/*
+ * Create a new node without setting its next fields.
  */
 queue_node_t* queue_new_simple_node(skey_t key, sval_t val, int toplevel, int transactional);
-/* 
- * Create a new node with its next field. 
- * If next=NULL, then this create a tail node. 
+/*
+ * Create a new node with its next field.
+ * If next=NULL, then this create a tail node.
  */
 queue_node_t* queue_new_node(skey_t key, sval_t val);
 void queue_delete_node(queue_node_t* n);

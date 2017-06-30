@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: linkedlist.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   linkedlist.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -23,7 +23,7 @@
 
 /*
  *  linkedlist.h
- *  
+ *
  *
  *  Copyright 2009 __MyCompanyName__. All rights reserved.
  *
@@ -40,7 +40,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "atomic_ops_if.h"
 
 #include "common.h"
@@ -62,7 +63,7 @@ extern __thread ssmem_allocator_t* alloc;
 
 #define TRANSACTIONAL                   4
 
-typedef volatile struct node 
+typedef volatile struct node
 {
   skey_t key;
   sval_t val;
@@ -73,7 +74,7 @@ typedef volatile struct node
 #endif
 } node_t;
 
-typedef ALIGNED(CACHE_LINE_SIZE) struct intset 
+typedef ALIGNED(CACHE_LINE_SIZE) struct intset
 {
   node_t *head;
 } intset_t;

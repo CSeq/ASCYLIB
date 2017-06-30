@@ -20,26 +20,9 @@
  *
  */
 
+#include <stdio.h>
 #include <assert.h>
-#include <getopt.h>
-#include <limits.h>
 #include <pthread.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <sched.h>
-#include <inttypes.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <malloc.h>
-#include "utils.h"
-#include "atomic_ops.h"
 #include "intset.h"
 
 /* ################################################################### *
@@ -55,23 +38,46 @@
 #define DS_TYPE             sl_intset_t
 #define DS_NODE             sl_node_t
 
+#define N_THREADS 1000
+
 __thread unsigned long * seeds;
+
+DS_TYPE * set;
+
+void *
+test(void * arg){
+  ssalloc_init();
+  seeds = seed_rand();
+
+  DS_ADD(set, (skey_t) arg, NULL);
+
+  return 0;
+}
+
 
 int
 main(int argc, char **argv)
 {
-  ssalloc_init();
-  seeds = seed_rand();
   levelmax = 10;
   size_pad_32 = 128;
 
-  DS_TYPE* set = DS_NEW();
+  ssalloc_init();
+  seeds = seed_rand();
+
+  set = DS_NEW();
   assert(set != NULL);
 
-  DS_ADD(set, 1, NULL);
-  DS_ADD(set, 2, NULL);
+  pthread_t ths[N_THREADS];
+  int i;
+  for (i = 0; i < N_THREADS; ++i)
+  {
+    pthread_create(&ths[i], 0, test, (void *) i);
+  }
 
-  DS_REMOVE(set, 2, NULL);
+  for (i = 0; i < N_THREADS; ++i)
+  {
+    pthread_join(ths[i], 0);
+  }
 
   printf("%u\n", DS_SIZE(set));
 

@@ -4,7 +4,7 @@
  * File: atomic_ops.h
  * Author: Tudor David <tudor.david@epfl.ch>
  *
- * Description: 
+ * Description:
  *      Cross-platform interface to common atomic operations
  *
  * The MIT License (MIT)
@@ -85,7 +85,7 @@ uint8_t oldval;
 //Test-and-set
 #  define TAS_U8(a) tas_uint8(a)
 //Memory barrier
-#  define MEM_BARRIER asm volatile("membar #LoadLoad | #LoadStore | #StoreLoad | #StoreStore"); 
+#  define MEM_BARRIER asm volatile("membar #LoadLoad | #LoadStore | #StoreLoad | #StoreStore");
 //end of sparc code
 
 #elif defined(__tile__)
@@ -270,6 +270,7 @@ uint8_t oldval;
 
 
 /* start --generic code */
+#define AO_t size_t
 
 #define CAS_U64_bool(addr, old, new) (old == CAS_U64(addr, old, new))
 

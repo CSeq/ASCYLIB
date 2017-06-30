@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: skiplist.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   skiplist.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "atomic_ops_if.h"
 
 #include "common.h"
@@ -63,7 +64,7 @@ typedef volatile struct sl_node
   volatile struct sl_node* next[1];
 #if defined(DO_PAD)
   uint8_t padding[64 - 32];
-#endif 
+#endif
 } sl_node_t;
 
 typedef ALIGNED(CACHE_LINE_SIZE) struct sl_intset

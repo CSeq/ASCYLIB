@@ -1,8 +1,8 @@
-/*   
+/*
  *   File: linkedlist-seq.h
- *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>, 
+ *   Author: Vincent Gramoli <vincent.gramoli@sydney.edu.au>,
  *  	     Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>
- *   Description: 
+ *   Description:
  *   linkedlist-seq.h is part of ASCYLIB
  *
  * Copyright (c) 2014 Vasileios Trigonakis <vasileios.trigonakis@epfl.ch>,
@@ -35,7 +35,8 @@
 #include <time.h>
 #include <stdint.h>
 
-#include <atomic_ops.h>
+//#include "atomic_ops.h"
+#include "atomic_ops_if.h"
 #include "lock_if.h"
 
 #include "common.h"
@@ -60,7 +61,7 @@ typedef ALIGNED(32) volatile struct node
   /* uint8_t padding[32]; */
 } node_t;
 
-typedef struct intset 
+typedef struct intset
 {
   node_t* head;
   /* uint8_t padding[CACHE_LINE_SIZE - sizeof(node_t*)]; */
